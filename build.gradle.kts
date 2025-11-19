@@ -22,11 +22,24 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation("org.springframework.boot:spring-boot-starter-json")
+
+    // Exposed + H2
+    implementation("org.jetbrains.exposed:exposed-core:0.51.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.51.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.51.1")
+    implementation("com.h2database:h2:2.2.224")
+
+    // Kotlin
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    // Kotest
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.1")
+    testImplementation("io.kotest:kotest-assertions-core:5.9.1")
+    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    implementation("org.jetbrains.exposed:exposed-java-time:0.51.1")
 }
 
 kotlin {
