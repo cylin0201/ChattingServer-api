@@ -26,6 +26,7 @@ dependencies {
 
     // Exposed + H2
     implementation("org.jetbrains.exposed:exposed-core:0.51.1")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.51.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.51.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.51.1")
     implementation("com.h2database:h2:2.2.224")
@@ -39,7 +40,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-    implementation("org.jetbrains.exposed:exposed-java-time:0.51.1")
+
 }
 
 kotlin {
