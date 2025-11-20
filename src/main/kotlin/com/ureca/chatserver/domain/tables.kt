@@ -14,6 +14,8 @@ object Users : Table("users") {
 object Rooms : Table("chat_rooms") {
     val id = long("id").autoIncrement()
     val name = varchar("room_name", 255)
+    val isGroup = bool("is_group").default(false)
+    val createdAt = datetime("created_at")
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -37,3 +39,4 @@ object Messages : Table("messages") {
 
     override val primaryKey = PrimaryKey(id)
 }
+

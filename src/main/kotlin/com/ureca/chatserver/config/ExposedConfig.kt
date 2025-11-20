@@ -7,8 +7,11 @@ import com.ureca.chatserver.domain.Users
 import jakarta.annotation.PostConstruct
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.springframework.context.annotation.Configuration
+import java.time.LocalDateTime
 
 @Configuration
 class ExposedConfig {
@@ -24,6 +27,21 @@ class ExposedConfig {
 
         transaction {
             SchemaUtils.create(Users, Rooms, RoomMembers, Messages)
+
+            if (Users.selectAll().empty()) {
+                Users.insert {
+                    it[username] = "user1"
+                    it[createdAt] = LocalDateTime.now()
+                }
+                Users.insert {
+                    it[username] = "user2"
+                    it[createdAt] = LocalDateTime.now()
+                }
+                Users.insert {
+                    it[username] = "user3"
+                    it[createdAt] = LocalDateTime.now()
+                }
+            }
         }
     }
 }

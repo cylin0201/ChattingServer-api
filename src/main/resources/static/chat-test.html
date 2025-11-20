@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow:auto; }
+    </style>
+</head>
+<body>
+<h2>1:1 Chat Test</h2>
+
+<label>User A ID: <input type="number" id="userA" value="1" /></label>
+<label>User B ID: <input type="number" id="userB" value="2" /></label>
+<button onclick="createRoom()">Create / Get 1:1 Room</button>
+<div id="roomInfo"></div>
+
+<hr/>
+<div>
+    <label>Your userId: <input type="number" id="myId" value="1" /></label><br/>
+    <button onclick="connect()">Connect WebSocket</button>
+    <button onclick="disconnect()">Disconnect</button>
+</div>
+
+<div>
+    <h3>Room</h3>
+    <div id="messages"></div>
+    <input type="text" id="msg" placeholder="message" style="width:60%" />
+    <button onclick="sendMsg()">Send</button>
+</div>
+
+<script>
+    let stompClient = null;
+    let currentRoomId = null;
+
+    function createRoom() {
+        const a = Number(document.getElementById('userA').value);
+        const b = Number(document.getElementById('userB').value);
+        fetch('http://localhost:8080/api/chat/create', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ userAId: a, userBId: b })
+        }).then(res => res.json())
+            .then(json => {
+                currentRoomId = json.roomId;
+                document.getElementById('roomInfo').innerText = 'roomId: ' + currentRoomId + ', name:' + json.name;
+                addSystemMessage('Joined room ' + currentRoomId);
+            });
+    }
+
+    function connect() {
+        if (!currentRoomId) { alert('먼저 방을 생성/조회하세요'); return; }
+        const socket = new SockJS('http://localhost:8080/ws-chat');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            addSystemMessage('Connected: ' + frame);
+            stompClient.subscribe('http://localhost:8080/topic/room.' + currentRoomId, function(messageOutput) {
+                const msg = JSON.parse(messageOutput.body);
+                addMessage(msg);
+            });
+        });
+    }
+
+    function disconnect() {
+        if (stompClient) stompClient.disconnect();
+        addSystemMessage('Disconnected');
+        stompClient = null;
+    }
+
+    function sendMsg() {
+        if (!stompClient || !currentRoomId) { alert('connect 후 전송하세요'); return; }
+        const content = document.getElementById('msg').value;
+        const senderId = Number(document.getElementById('myId').value);
+        const payload = { roomId: currentRoomId, senderId: senderId, content: content };
+        stompClient.send('/app/chat.send', {}, JSON.stringify(payload));
+        document.getElementById('msg').value = '';
+    }
+
+    function addMessage(m) {
+        const box = document.getElementById('messages');
+        const el = document.createElement('div');
+        el.innerText = '[' + (m.createdAt ?? '') + '] ' + m.senderId + ': ' + m.content;
+        box.prepend(el);
+    }
+
+    function addSystemMessage(t) {
+        const box = document.getElementById('messages');
+        const el = document.createElement('div');
+        el.style.color = '#888';
+        el.innerText = '[SYSTEM] ' + t;
+        box.prepend(el);
+    }
+</script>
+</body>
+</html>
